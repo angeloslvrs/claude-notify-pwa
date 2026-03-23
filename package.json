@@ -10,8 +10,6 @@
     "web-push": "^3"
   },
   "devDependencies": {
-    "@types/web-push": "^3",
-    "bun-types": "^1.3.11",
-    "typescript": "^5.9.3"
+    "@types/web-push": "^3"
   }
 }
