@@ -1,0 +1,10 @@
+services:
+  claude-notif:
+    build: .
+    ports:
+      - "7392:7392"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - VAPID_SUBJECT=mailto:you@example.com
+    restart: unless-stopped
