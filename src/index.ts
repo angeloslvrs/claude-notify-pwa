@@ -201,6 +201,99 @@ app.delete("/history", async (c) => {
   return c.json({ ok: true });
 });
 
+// --- Permission Round-Trip ---
+
+interface PendingPermission {
+  id: string;
+  machine: string;
+  project: string;
+  tool_name: string;
+  tool_summary: string;
+  permission_suggestions: any[];
+  status: "pending" | "answered";
+  decision?: string;
+  timestamp: number;
+}
+
+const pendingPermissions = new Map<string, PendingPermission>();
+
+// Auto-expire old entries every 30s
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, p] of pendingPermissions) {
+    if (now - p.timestamp > 120_000) pendingPermissions.delete(id);
+  }
+}, 30_000);
+
+app.post("/permission", async (c) => {
+  const body = await c.req.json();
+  const { id, machine, project, tool_name, tool_summary, permission_suggestions } = body;
+  if (!id || !tool_name) {
+    return c.json({ error: "Missing required fields" }, 400);
+  }
+
+  const pending: PendingPermission = {
+    id,
+    machine: machine || "",
+    project: project || "",
+    tool_name,
+    tool_summary: tool_summary || tool_name,
+    permission_suggestions: permission_suggestions || [],
+    status: "pending",
+    timestamp: Date.now(),
+  };
+  pendingPermissions.set(id, pending);
+
+  // Send push notification
+  const title = project ? `${machine} · ${project}` : machine || "Claude Code";
+  const payload = JSON.stringify({
+    title,
+    body: tool_summary || tool_name,
+    event: "permission",
+    permissionId: id,
+  });
+  await sendPushToAll(payload, "high");
+
+  return c.json({ ok: true, id });
+});
+
+app.get("/permission/:id", (c) => {
+  const id = c.req.param("id");
+  const p = pendingPermissions.get(id);
+  if (!p) {
+    return c.json({ error: "Not found or expired" }, 404);
+  }
+  if (p.status === "answered") {
+    const resp: any = { status: "answered", decision: p.decision };
+    if (p.decision === "always" && p.permission_suggestions.length > 0) {
+      resp.permission_suggestions = p.permission_suggestions;
+    }
+    return c.json(resp);
+  }
+  return c.json({
+    status: "pending",
+    tool_name: p.tool_name,
+    tool_summary: p.tool_summary,
+    machine: p.machine,
+    project: p.project,
+  });
+});
+
+app.post("/permission/:id/respond", async (c) => {
+  const id = c.req.param("id");
+  const { decision } = await c.req.json();
+  const p = pendingPermissions.get(id);
+  if (!p) {
+    return c.json({ error: "Not found or expired" }, 404);
+  }
+  if (p.status === "answered") {
+    return c.json({ error: "Already answered" }, 409);
+  }
+  p.status = "answered";
+  p.decision = decision;
+  return c.json({ ok: true });
+});
+
 // --- Static Files (PWA) ---
 
 app.use("/*", serveStatic({ root: "./public" }));
