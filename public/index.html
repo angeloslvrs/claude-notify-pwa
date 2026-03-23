@@ -2,94 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Claude Notif</title>
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#e94560">
+  <meta name="theme-color" content="#0a84ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #000000;
+      --glass: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.1);
+      --glass-hover: rgba(255,255,255,0.1);
+      --text: #f5f5f7;
+      --text-secondary: rgba(255,255,255,0.5);
+      --text-tertiary: rgba(255,255,255,0.35);
+      --green: #30d158;
+      --blue: #0a84ff;
+      --red: #ff453a;
+      --orange: #ff9f0a;
+      --cyan: #64d2ff;
+      --separator: rgba(255,255,255,0.06);
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #1a1a2e;
-      color: #eee;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.01em;
     }
     .container {
       max-width: 480px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: 3rem 1.25rem 2rem;
+      padding-top: max(3rem, env(safe-area-inset-top));
     }
-    header {
-      text-align: center;
-      margin-bottom: 1.5rem;
+    header { text-align: center; margin-bottom: 1.75rem; }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; }
+    header p { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.2rem; }
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
     }
-    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
-    header p { color: #aaa; font-size: 0.85rem; }
-    .status {
-      margin: 1rem 0;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      text-align: center;
+    .status-card {
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
     }
-    .status.pending { background: #2d2d44; color: #aaa; }
-    .status.subscribed { background: #1b3a2d; color: #6fcf97; }
-    .status.error { background: #3a1b1b; color: #f07070; }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.active { background: var(--green); box-shadow: 0 0 8px rgba(48,209,88,0.4); }
+    .status-dot.inactive { background: var(--text-tertiary); }
+    .status-text { font-size: 0.85rem; color: var(--text-secondary); }
     .actions { text-align: center; margin-bottom: 2rem; }
     button {
-      background: #e94560;
-      color: white;
+      font-family: inherit;
       border: none;
-      padding: 0.6rem 1.5rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
-    button:hover { opacity: 0.85; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    button.secondary {
-      background: #2d2d44;
-      color: #aaa;
+    .btn-primary {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      color: var(--blue);
+      padding: 0.65rem 1.75rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .btn-primary:active { background: var(--glass-hover); }
+    .btn-primary:disabled { color: var(--text-tertiary); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-tertiary);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
       font-size: 0.8rem;
-      padding: 0.4rem 1rem;
     }
-    h2 {
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
+    .btn-secondary:active { background: var(--glass); }
+    .btn-allow {
+      background: rgba(48,209,88,0.15);
+      color: var(--green);
+      padding: 0.85rem 2rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      flex: 1;
+    }
+    .btn-always {
+      background: rgba(10,132,255,0.15);
+      color: var(--blue);
+      padding: 0.85rem 2rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      flex: 1;
+    }
+    .section-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+      padding-left: 0.25rem;
     }
     .history-list { list-style: none; }
+    .history-group {
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
     .history-item {
-      background: #16213e;
-      border-radius: 8px;
       padding: 0.75rem 1rem;
-      margin-bottom: 0.5rem;
     }
-    .history-item .meta {
-      font-size: 0.75rem;
-      color: #888;
-      margin-bottom: 0.25rem;
+    .history-item + .history-item {
+      border-top: 1px solid var(--separator);
+    }
+    .history-meta {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.4rem;
       align-items: center;
+      margin-bottom: 0.3rem;
+      flex-wrap: wrap;
     }
-    .history-item .summary {
-      font-size: 0.85rem;
-      color: #ccc;
+    .history-summary {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
       line-height: 1.4;
     }
     .badge {
       display: inline-block;
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.7rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 5px;
+      font-size: 0.65rem;
       font-weight: 600;
+      letter-spacing: 0.01em;
     }
-    .badge.machine { background: #2d2d44; color: #7ec8e3; }
-    .badge.project { background: #2d2d44; color: #b8b8d1; }
-    .badge.waiting { background: #3a2a1b; color: #f0a070; }
-    .badge.count { background: #2a1b3a; color: #c070f0; }
-    .empty { text-align: center; color: #555; padding: 2rem; font-size: 0.9rem; }
+    .badge-machine { background: rgba(100,210,255,0.12); color: var(--cyan); }
+    .badge-project { background: var(--glass); color: var(--text-secondary); }
+    .badge-waiting { background: rgba(255,159,10,0.12); color: var(--orange); }
+    .badge-count { background: rgba(175,130,255,0.12); color: #af82ff; }
+    .history-time {
+      font-size: 0.65rem;
+      color: var(--text-tertiary);
+      margin-left: auto;
+    }
+    .empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      padding: 2.5rem 1rem;
+      font-size: 0.85rem;
+    }
+    .clear-wrap { text-align: center; margin-top: 1rem; }
+
+    /* Permission prompt */
+    #permissionView { display: none; }
+    #permissionView.active { display: block; }
+    #mainView.hidden { display: none; }
+    .permission-card {
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .permission-card .tool-label {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .permission-card .tool-action {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+    .permission-card .tool-context {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    .permission-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .permission-status {
+      font-size: 0.9rem;
+      color: var(--green);
+      padding: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -98,55 +212,84 @@
       <h1>Claude Notif</h1>
       <p>Push notifications from Claude Code</p>
     </header>
-    <div id="status" class="status pending">Checking status...</div>
-    <div class="actions">
-      <button id="btn" disabled>Enable Notifications</button>
+
+    <!-- Main View -->
+    <div id="mainView">
+      <div class="status-card glass" id="statusCard">
+        <div class="status-dot inactive" id="statusDot"></div>
+        <span class="status-text" id="statusText">Checking...</span>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" id="btn" disabled>Enable Notifications</button>
+      </div>
+      <div class="section-header">History</div>
+      <ul class="history-list" id="historyList">
+        <li class="empty">Loading...</li>
+      </ul>
+      <div class="clear-wrap" id="clearWrap" style="display:none">
+        <button class="btn-secondary" id="clearBtn">Clear History</button>
+      </div>
     </div>
-    <h2>History</h2>
-    <ul class="history-list" id="historyList">
-      <li class="empty">Loading...</li>
-    </ul>
-    <div class="actions" id="clearWrap" style="display:none">
-      <button class="secondary" id="clearBtn">Clear History</button>
+
+    <!-- Permission Prompt View -->
+    <div id="permissionView">
+      <div class="permission-card glass" id="permissionCard">
+        <div class="tool-label" id="permToolLabel">Permission Request</div>
+        <div class="tool-action" id="permToolAction">Loading...</div>
+        <div class="tool-context" id="permToolContext"></div>
+        <div class="permission-buttons" id="permButtons">
+          <button class="btn-allow" onclick="respondPermission('allow')">Allow</button>
+          <button class="btn-always" onclick="respondPermission('always')">Always</button>
+        </div>
+        <div class="permission-status" id="permStatus" style="display:none"></div>
+      </div>
     </div>
   </div>
 
   <script>
-    const statusEl = document.getElementById("status");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
     const btnEl = document.getElementById("btn");
     const historyList = document.getElementById("historyList");
     const clearBtn = document.getElementById("clearBtn");
     const clearWrap = document.getElementById("clearWrap");
+    const mainView = document.getElementById("mainView");
+    const permissionView = document.getElementById("permissionView");
 
-    function setStatus(text, cls) {
-      statusEl.textContent = text;
-      statusEl.className = "status " + cls;
+    let currentPermissionId = null;
+
+    // --- Check for permission prompt ---
+    const params = new URLSearchParams(window.location.search);
+    const permId = params.get("permission");
+    if (permId) {
+      showPermissionView(permId);
+    }
+
+    function setStatus(text, active) {
+      statusText.textContent = text;
+      statusDot.className = "status-dot " + (active ? "active" : "inactive");
     }
 
     // --- Subscription ---
-
     async function init() {
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        setStatus("Push notifications not supported in this browser", "error");
+        setStatus("Push not supported", false);
         return;
       }
-
       const reg = await navigator.serviceWorker.register("/sw.js");
       const sub = await reg.pushManager.getSubscription();
-
       if (sub) {
-        setStatus("Subscribed and receiving notifications", "subscribed");
+        setStatus("Receiving notifications", true);
         btnEl.textContent = "Unsubscribe";
         btnEl.disabled = false;
         btnEl.onclick = () => unsubscribe(reg, sub);
       } else {
-        setStatus("Not subscribed", "pending");
+        setStatus("Not subscribed", false);
         btnEl.textContent = "Enable Notifications";
         btnEl.disabled = false;
         btnEl.onclick = () => subscribe(reg);
       }
-
-      loadHistory();
+      if (!permId) loadHistory();
     }
 
     async function subscribe(reg) {
@@ -163,12 +306,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(sub.toJSON()),
         });
-        setStatus("Subscribed and receiving notifications", "subscribed");
+        setStatus("Receiving notifications", true);
         btnEl.textContent = "Unsubscribe";
         btnEl.disabled = false;
         btnEl.onclick = () => unsubscribe(reg, sub);
       } catch (err) {
-        setStatus("Failed to subscribe: " + err.message, "error");
+        setStatus("Subscribe failed: " + err.message, false);
         btnEl.disabled = false;
       }
     }
@@ -182,12 +325,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ endpoint: sub.endpoint }),
         });
-        setStatus("Unsubscribed", "pending");
+        setStatus("Not subscribed", false);
         btnEl.textContent = "Enable Notifications";
         btnEl.disabled = false;
         btnEl.onclick = () => subscribe(reg);
       } catch (err) {
-        setStatus("Failed to unsubscribe: " + err.message, "error");
+        setStatus("Unsubscribe failed: " + err.message, false);
         btnEl.disabled = false;
       }
     }
@@ -202,37 +345,37 @@
     }
 
     // --- History ---
-
     async function loadHistory() {
       try {
         const resp = await fetch("/history");
         const entries = await resp.json();
         renderHistory(entries);
       } catch {
-        historyList.innerHTML = '<li class="empty">Failed to load history</li>';
+        historyList.innerHTML = '<li class="empty">Failed to load</li>';
       }
     }
 
     function renderHistory(entries) {
-      if (entries.length === 0) {
+      if (!entries.length) {
         historyList.innerHTML = '<li class="empty">No notifications yet</li>';
         clearWrap.style.display = "none";
         return;
       }
       clearWrap.style.display = "";
       historyList.innerHTML = entries.map((e) => {
-        const time = new Date(e.timestamp).toLocaleString();
+        const time = new Date(e.timestamp).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
         const badges = [
-          '<span class="badge machine">' + esc(e.machine) + '</span>',
-          e.project ? '<span class="badge project">' + esc(e.project) + '</span>' : "",
-          e.event === "notification" ? '<span class="badge waiting">waiting</span>' : "",
-          e.count > 1 ? '<span class="badge count">' + e.count + ' tasks</span>' : "",
+          '<span class="badge badge-machine">' + esc(e.machine) + "</span>",
+          e.project ? '<span class="badge badge-project">' + esc(e.project) + "</span>" : "",
+          e.event === "notification" ? '<span class="badge badge-waiting">waiting</span>' : "",
+          e.count > 1 ? '<span class="badge badge-count">' + e.count + " tasks</span>" : "",
         ].filter(Boolean).join("");
-        return '<li class="history-item">' +
-          '<div class="meta">' + badges + ' <span>' + time + '</span></div>' +
-          '<div class="summary">' + esc(e.summary) + '</div>' +
-          '</li>';
+        return '<li class="history-item"><div class="history-meta">' +
+          badges + '<span class="history-time">' + time + "</span></div>" +
+          '<div class="history-summary">' + esc(e.summary) + "</div></li>";
       }).join("");
+      // Wrap all items in a glass group
+      historyList.innerHTML = '<div class="history-group glass">' + historyList.innerHTML + "</div>";
     }
 
     function esc(s) {
@@ -245,6 +388,55 @@
       await fetch("/history", { method: "DELETE" });
       loadHistory();
     };
+
+    // --- Permission Prompt ---
+    async function showPermissionView(id) {
+      currentPermissionId = id;
+      mainView.classList.add("hidden");
+      permissionView.classList.add("active");
+
+      try {
+        const resp = await fetch("/permission/" + id);
+        if (!resp.ok) throw new Error("expired");
+        const data = await resp.json();
+        if (data.status === "answered") {
+          showPermissionResult("Already responded");
+          return;
+        }
+        document.getElementById("permToolLabel").textContent = data.tool_name || "Permission Request";
+        document.getElementById("permToolAction").textContent = data.tool_summary || data.tool_name;
+        document.getElementById("permToolContext").textContent =
+          (data.machine || "") + (data.project ? " · " + data.project : "");
+      } catch {
+        showPermissionResult("Permission request expired");
+      }
+    }
+
+    async function respondPermission(decision) {
+      const btns = document.getElementById("permButtons");
+      btns.style.display = "none";
+      try {
+        await fetch("/permission/" + currentPermissionId + "/respond", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ decision }),
+        });
+        showPermissionResult(decision === "always" ? "Always allowed" : "Allowed");
+      } catch {
+        showPermissionResult("Failed to respond");
+      }
+    }
+
+    function showPermissionResult(msg) {
+      const btns = document.getElementById("permButtons");
+      const status = document.getElementById("permStatus");
+      btns.style.display = "none";
+      status.style.display = "";
+      status.textContent = msg;
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
+    }
 
     init();
   </script>
