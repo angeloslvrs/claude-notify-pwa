@@ -7,4 +7,5 @@ services:
       - ./data:/app/data
     environment:
       - VAPID_SUBJECT=mailto:you@example.com
+      - ADMIN_KEY=your-secret-admin-key
     restart: unless-stopped
