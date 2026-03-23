@@ -1,12 +1,14 @@
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || "Claude Code";
+  const isWaiting = data.event === "notification";
   const options = {
     body: data.body || "Task completed",
     icon: "/icon.svg",
     badge: "/icon.svg",
-    tag: "claude-notif",
+    tag: isWaiting ? "claude-notif-waiting" : "claude-notif",
     renotify: true,
+    requireInteraction: isWaiting,
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
