@@ -56,6 +56,19 @@ while [ $ELAPSED -lt 60 ]; do
   if [ "$STATUS" = "answered" ]; then
     DECISION=$(echo "$RESP" | jq -r '.decision // empty')
 
+    if [ "$DECISION" = "deny" ]; then
+      jq -nc '{
+        hookSpecificOutput: {
+          hookEventName: "PermissionRequest",
+          decision: {
+            behavior: "deny",
+            message: "Denied from phone"
+          }
+        }
+      }'
+      exit 0
+    fi
+
     if [ "$DECISION" = "always" ]; then
       # Include permission_suggestions for persistence
       SUGGESTIONS=$(echo "$RESP" | jq -c '.permission_suggestions // []')

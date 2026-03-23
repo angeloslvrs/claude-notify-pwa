@@ -106,7 +106,16 @@
     .btn-always {
       background: rgba(10,132,255,0.15);
       color: var(--blue);
-      padding: 0.85rem 2rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      flex: 2;
+    }
+    .btn-deny {
+      background: rgba(255,69,58,0.15);
+      color: var(--red);
+      padding: 0.85rem 1rem;
       border-radius: 14px;
       font-size: 1rem;
       font-weight: 600;
@@ -197,7 +206,12 @@
     }
     .permission-buttons {
       display: flex;
-      gap: 0.75rem;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .permission-buttons .row {
+      display: flex;
+      gap: 0.6rem;
     }
     .permission-status {
       font-size: 0.9rem;
@@ -488,7 +502,10 @@
         <div class="tool-context" id="permToolContext"></div>
         <div class="permission-buttons" id="permButtons">
           <button class="btn-allow" onclick="respondPermission('allow')">Allow</button>
-          <button class="btn-always" onclick="respondPermission('always')">Always</button>
+          <div class="row">
+            <button class="btn-always" id="permAlwaysBtn" onclick="respondPermission('always')">Allow always in project</button>
+            <button class="btn-deny" onclick="respondPermission('deny')">Deny</button>
+          </div>
         </div>
         <div class="permission-status" id="permStatus" style="display:none"></div>
       </div>
@@ -949,6 +966,13 @@
         document.getElementById("permToolAction").textContent = data.tool_summary || data.tool_name;
         document.getElementById("permToolContext").textContent =
           (data.machine || "") + (data.project ? " \u00B7 " + data.project : "");
+        // Show project in "Always" button
+        const alwaysBtn = document.getElementById("permAlwaysBtn");
+        if (data.project) {
+          alwaysBtn.textContent = "Always allow in " + data.project;
+        } else {
+          alwaysBtn.textContent = "Always allow";
+        }
       } catch {
         showPermissionResult("Permission request expired");
       }
@@ -963,7 +987,8 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ decision }),
         });
-        showPermissionResult(decision === "always" ? "Always allowed" : "Allowed");
+        const msg = decision === "always" ? "Always allowed" : decision === "deny" ? "Denied" : "Allowed";
+        showPermissionResult(msg);
       } catch {
         showPermissionResult("Failed to respond");
       }
