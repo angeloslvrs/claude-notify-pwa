@@ -12,56 +12,118 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #1a1a2e;
       color: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
     }
     .container {
-      text-align: center;
-      padding: 2rem;
-      max-width: 400px;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
     }
-    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    header p { color: #aaa; font-size: 0.85rem; }
     .status {
-      margin: 1.5rem 0;
+      margin: 1rem 0;
       padding: 0.75rem 1rem;
       border-radius: 8px;
       font-size: 0.9rem;
+      text-align: center;
     }
     .status.pending { background: #2d2d44; color: #aaa; }
     .status.subscribed { background: #1b3a2d; color: #6fcf97; }
     .status.error { background: #3a1b1b; color: #f07070; }
+    .actions { text-align: center; margin-bottom: 2rem; }
     button {
       background: #e94560;
       color: white;
       border: none;
-      padding: 0.75rem 2rem;
+      padding: 0.6rem 1.5rem;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: opacity 0.2s;
     }
     button:hover { opacity: 0.85; }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.secondary {
+      background: #2d2d44;
+      color: #aaa;
+      font-size: 0.8rem;
+      padding: 0.4rem 1rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .history-list { list-style: none; }
+    .history-item {
+      background: #16213e;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .history-item .meta {
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 0.25rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .history-item .summary {
+      font-size: 0.85rem;
+      color: #ccc;
+      line-height: 1.4;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge.machine { background: #2d2d44; color: #7ec8e3; }
+    .badge.project { background: #2d2d44; color: #b8b8d1; }
+    .badge.waiting { background: #3a2a1b; color: #f0a070; }
+    .badge.count { background: #2a1b3a; color: #c070f0; }
+    .empty { text-align: center; color: #555; padding: 2rem; font-size: 0.9rem; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Claude Notif</h1>
-    <p>Push notifications from Claude Code</p>
+    <header>
+      <h1>Claude Notif</h1>
+      <p>Push notifications from Claude Code</p>
+    </header>
     <div id="status" class="status pending">Checking status...</div>
-    <button id="btn" disabled>Enable Notifications</button>
+    <div class="actions">
+      <button id="btn" disabled>Enable Notifications</button>
+    </div>
+    <h2>History</h2>
+    <ul class="history-list" id="historyList">
+      <li class="empty">Loading...</li>
+    </ul>
+    <div class="actions" id="clearWrap" style="display:none">
+      <button class="secondary" id="clearBtn">Clear History</button>
+    </div>
   </div>
 
   <script>
     const statusEl = document.getElementById("status");
     const btnEl = document.getElementById("btn");
+    const historyList = document.getElementById("historyList");
+    const clearBtn = document.getElementById("clearBtn");
+    const clearWrap = document.getElementById("clearWrap");
 
     function setStatus(text, cls) {
       statusEl.textContent = text;
       statusEl.className = "status " + cls;
     }
+
+    // --- Subscription ---
 
     async function init() {
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
@@ -83,6 +145,8 @@
         btnEl.disabled = false;
         btnEl.onclick = () => subscribe(reg);
       }
+
+      loadHistory();
     }
 
     async function subscribe(reg) {
@@ -90,18 +154,15 @@
       try {
         const resp = await fetch("/vapid-public-key");
         const { publicKey } = await resp.json();
-
         const sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
-
         await fetch("/subscribe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(sub.toJSON()),
         });
-
         setStatus("Subscribed and receiving notifications", "subscribed");
         btnEl.textContent = "Unsubscribe";
         btnEl.disabled = false;
@@ -139,6 +200,51 @@
       for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
       return arr;
     }
+
+    // --- History ---
+
+    async function loadHistory() {
+      try {
+        const resp = await fetch("/history");
+        const entries = await resp.json();
+        renderHistory(entries);
+      } catch {
+        historyList.innerHTML = '<li class="empty">Failed to load history</li>';
+      }
+    }
+
+    function renderHistory(entries) {
+      if (entries.length === 0) {
+        historyList.innerHTML = '<li class="empty">No notifications yet</li>';
+        clearWrap.style.display = "none";
+        return;
+      }
+      clearWrap.style.display = "";
+      historyList.innerHTML = entries.map((e) => {
+        const time = new Date(e.timestamp).toLocaleString();
+        const badges = [
+          '<span class="badge machine">' + esc(e.machine) + '</span>',
+          e.project ? '<span class="badge project">' + esc(e.project) + '</span>' : "",
+          e.event === "notification" ? '<span class="badge waiting">waiting</span>' : "",
+          e.count > 1 ? '<span class="badge count">' + e.count + ' tasks</span>' : "",
+        ].filter(Boolean).join("");
+        return '<li class="history-item">' +
+          '<div class="meta">' + badges + ' <span>' + time + '</span></div>' +
+          '<div class="summary">' + esc(e.summary) + '</div>' +
+          '</li>';
+      }).join("");
+    }
+
+    function esc(s) {
+      const d = document.createElement("div");
+      d.textContent = s || "";
+      return d.innerHTML;
+    }
+
+    clearBtn.onclick = async () => {
+      await fetch("/history", { method: "DELETE" });
+      loadHistory();
+    };
 
     init();
   </script>
