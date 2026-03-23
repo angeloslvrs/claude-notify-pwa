@@ -172,7 +172,7 @@
     /* Permission prompt */
     #permissionView { display: none; }
     #permissionView.active { display: block; }
-    #mainView.hidden { display: none; }
+    #mainView.hidden, #authView.hidden, #adminView.hidden { display: none; }
     .permission-card {
       padding: 1.5rem;
       text-align: center;
@@ -204,6 +204,190 @@
       color: var(--green);
       padding: 1rem;
     }
+
+    /* Auth views */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.25rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+    }
+    .tab-bar button {
+      flex: 1;
+      padding: 0.65rem 0;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      transition: all 0.2s;
+    }
+    .tab-bar button.active {
+      color: var(--text);
+      background: rgba(255,255,255,0.08);
+    }
+    .tab-bar button:active {
+      background: var(--glass-hover);
+    }
+    .auth-form {
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .input-field {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .input-field::placeholder { color: var(--text-tertiary); }
+    .input-field:focus { border-color: var(--blue); }
+    .auth-form .btn-primary {
+      width: 100%;
+      margin-top: 0.25rem;
+    }
+    .auth-error {
+      color: var(--red);
+      font-size: 0.8rem;
+      text-align: center;
+      margin-bottom: 0.75rem;
+      min-height: 1.1rem;
+    }
+
+    /* Settings section */
+    .settings-section {
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+    }
+    .settings-row + .settings-row {
+      border-top: 1px solid var(--separator);
+    }
+    .settings-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .settings-value {
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+    .api-key-display {
+      font-family: "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      background: rgba(100,210,255,0.08);
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .api-key-display:active {
+      background: rgba(100,210,255,0.18);
+    }
+    .api-key-display.copied {
+      color: var(--green);
+      background: rgba(48,209,88,0.12);
+    }
+    .settings-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--separator);
+    }
+    .btn-logout {
+      background: rgba(255,69,58,0.12);
+      color: var(--red);
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: none;
+    }
+    .btn-admin-link {
+      background: rgba(255,159,10,0.12);
+      color: var(--orange);
+      padding: 0.5rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: none;
+    }
+
+    /* Admin panel */
+    .admin-section {
+      margin-bottom: 1.5rem;
+    }
+    .admin-list {
+      overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+    .admin-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1rem;
+    }
+    .admin-item + .admin-item {
+      border-top: 1px solid var(--separator);
+    }
+    .admin-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .admin-item-primary {
+      font-size: 0.85rem;
+      color: var(--text);
+      font-family: "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .admin-item-secondary {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-top: 0.15rem;
+    }
+    .btn-danger-sm {
+      background: rgba(255,69,58,0.12);
+      color: var(--red);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border: none;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+    }
+    .btn-danger-sm:active { background: rgba(255,69,58,0.25); }
+    .admin-actions {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .admin-empty {
+      text-align: center;
+      color: var(--text-tertiary);
+      padding: 1.5rem 1rem;
+      font-size: 0.82rem;
+    }
   </style>
 </head>
 <body>
@@ -213,8 +397,32 @@
       <p>Push notifications from Claude Code</p>
     </header>
 
+    <!-- Auth View -->
+    <div id="authView" class="hidden">
+      <div class="tab-bar">
+        <button id="tabLogin" class="active" onclick="switchTab('login')">Login</button>
+        <button id="tabRegister" onclick="switchTab('register')">Register</button>
+      </div>
+      <div class="auth-error" id="authError"></div>
+
+      <!-- Login Form -->
+      <div id="loginForm" class="auth-form glass">
+        <input class="input-field" type="text" id="loginUsername" placeholder="Username" autocomplete="username" autocapitalize="none">
+        <input class="input-field" type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+        <button class="btn-primary" id="loginBtn" onclick="doLogin()">Login</button>
+      </div>
+
+      <!-- Register Form -->
+      <div id="registerForm" class="auth-form glass" style="display:none">
+        <input class="input-field" type="text" id="regInvite" placeholder="Invite Code" autocapitalize="none">
+        <input class="input-field" type="text" id="regUsername" placeholder="Username" autocomplete="username" autocapitalize="none">
+        <input class="input-field" type="password" id="regPassword" placeholder="Password" autocomplete="new-password">
+        <button class="btn-primary" id="regBtn" onclick="doRegister()">Register</button>
+      </div>
+    </div>
+
     <!-- Main View -->
-    <div id="mainView">
+    <div id="mainView" class="hidden">
       <div class="status-card glass" id="statusCard">
         <div class="status-dot inactive" id="statusDot"></div>
         <span class="status-text" id="statusText">Checking...</span>
@@ -222,12 +430,53 @@
       <div class="actions">
         <button class="btn-primary" id="btn" disabled>Enable Notifications</button>
       </div>
+
+      <!-- Settings Section -->
+      <div class="settings-section glass" id="settingsSection">
+        <div class="settings-row">
+          <span class="settings-label">Display Name</span>
+          <span class="settings-value" id="displayName">--</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">API Key</span>
+          <span class="api-key-display" id="apiKeyDisplay" onclick="copyApiKey()">--</span>
+        </div>
+        <div class="settings-actions">
+          <button class="btn-logout" onclick="doLogout()">Logout</button>
+          <button class="btn-admin-link" id="adminLink" onclick="showAdmin()" style="display:none">Admin</button>
+        </div>
+      </div>
+
       <div class="section-header">History</div>
       <ul class="history-list" id="historyList">
         <li class="empty">Loading...</li>
       </ul>
       <div class="clear-wrap" id="clearWrap" style="display:none">
         <button class="btn-secondary" id="clearBtn">Clear History</button>
+      </div>
+    </div>
+
+    <!-- Admin View -->
+    <div id="adminView" class="hidden">
+      <div class="admin-section">
+        <div class="section-header">Invite Codes</div>
+        <div class="admin-list glass" id="inviteList">
+          <div class="admin-empty">Loading...</div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn-primary" onclick="generateInvite()">Generate Invite</button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <div class="section-header">Users</div>
+        <div class="admin-list glass" id="userList">
+          <div class="admin-empty">Loading...</div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:1rem;">
+        <button class="btn-secondary" onclick="hideAdmin()">Back</button>
       </div>
     </div>
 
@@ -247,6 +496,7 @@
   </div>
 
   <script>
+    // --- DOM refs ---
     const statusDot = document.getElementById("statusDot");
     const statusText = document.getElementById("statusText");
     const btnEl = document.getElementById("btn");
@@ -254,9 +504,270 @@
     const clearBtn = document.getElementById("clearBtn");
     const clearWrap = document.getElementById("clearWrap");
     const mainView = document.getElementById("mainView");
+    const authView = document.getElementById("authView");
+    const adminView = document.getElementById("adminView");
     const permissionView = document.getElementById("permissionView");
+    const authError = document.getElementById("authError");
 
     let currentPermissionId = null;
+
+    // --- Token helpers ---
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    function getApiKey() {
+      return localStorage.getItem("api_key");
+    }
+
+    function getAdminKey() {
+      return localStorage.getItem("adminKey");
+    }
+
+    async function authFetch(url, opts = {}) {
+      const token = getToken();
+      if (!opts.headers) opts.headers = {};
+      if (token) {
+        opts.headers["Authorization"] = "Bearer " + token;
+      }
+      return fetch(url, opts);
+    }
+
+    async function adminFetch(url, opts = {}) {
+      const key = getAdminKey();
+      if (!key) return null;
+      if (!opts.headers) opts.headers = {};
+      opts.headers["Authorization"] = "Bearer " + key;
+      return fetch(url, opts);
+    }
+
+    // --- View management ---
+    function showView(name) {
+      authView.classList.toggle("hidden", name !== "auth");
+      mainView.classList.toggle("hidden", name !== "main");
+      adminView.classList.toggle("hidden", name !== "admin");
+      // permissionView is managed separately
+    }
+
+    // --- Auth tab switching ---
+    function switchTab(tab) {
+      document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+      document.getElementById("tabRegister").classList.toggle("active", tab === "register");
+      document.getElementById("loginForm").style.display = tab === "login" ? "" : "none";
+      document.getElementById("registerForm").style.display = tab === "register" ? "" : "none";
+      authError.textContent = "";
+    }
+
+    // --- Login ---
+    async function doLogin() {
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      if (!username || !password) {
+        authError.textContent = "Please fill in all fields";
+        return;
+      }
+      authError.textContent = "";
+      document.getElementById("loginBtn").disabled = true;
+      try {
+        const resp = await fetch("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          authError.textContent = data.error || "Login failed";
+          return;
+        }
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("api_key", data.api_key);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        onAuthenticated(data.user);
+      } catch (err) {
+        authError.textContent = "Network error";
+      } finally {
+        document.getElementById("loginBtn").disabled = false;
+      }
+    }
+
+    // --- Register ---
+    async function doRegister() {
+      const invite_code = document.getElementById("regInvite").value.trim();
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value;
+      if (!invite_code || !username || !password) {
+        authError.textContent = "Please fill in all fields";
+        return;
+      }
+      authError.textContent = "";
+      document.getElementById("regBtn").disabled = true;
+      try {
+        const resp = await fetch("/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, invite_code }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+          authError.textContent = data.error || "Registration failed";
+          return;
+        }
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("api_key", data.api_key);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        onAuthenticated(data.user);
+      } catch (err) {
+        authError.textContent = "Network error";
+      } finally {
+        document.getElementById("regBtn").disabled = false;
+      }
+    }
+
+    // --- Logout ---
+    function doLogout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("api_key");
+      localStorage.removeItem("user");
+      localStorage.removeItem("adminKey");
+      showView("auth");
+    }
+
+    // --- Post-auth setup ---
+    function onAuthenticated(user) {
+      showView("main");
+      document.getElementById("displayName").textContent = user.display_name || user.username;
+      const apiKeyEl = document.getElementById("apiKeyDisplay");
+      apiKeyEl.textContent = getApiKey() || "--";
+      apiKeyEl.classList.remove("copied");
+
+      // Show admin link if adminKey is set
+      document.getElementById("adminLink").style.display = getAdminKey() ? "" : "none";
+
+      initPush();
+    }
+
+    // --- Copy API key ---
+    function copyApiKey() {
+      const key = getApiKey();
+      if (!key) return;
+      navigator.clipboard.writeText(key).then(() => {
+        const el = document.getElementById("apiKeyDisplay");
+        el.textContent = "Copied!";
+        el.classList.add("copied");
+        setTimeout(() => {
+          el.textContent = key;
+          el.classList.remove("copied");
+        }, 1500);
+      });
+    }
+
+    // --- Admin panel ---
+    function showAdmin() {
+      let key = getAdminKey();
+      if (!key) {
+        key = prompt("Enter admin key:");
+        if (!key) return;
+        localStorage.setItem("adminKey", key);
+      }
+      showView("admin");
+      loadInvites();
+      loadUsers();
+    }
+
+    function hideAdmin() {
+      showView("main");
+    }
+
+    async function loadInvites() {
+      const inviteListEl = document.getElementById("inviteList");
+      try {
+        const resp = await adminFetch("/admin/invites");
+        if (!resp || !resp.ok) {
+          if (resp && resp.status === 401) {
+            localStorage.removeItem("adminKey");
+            inviteListEl.innerHTML = '<div class="admin-empty">Invalid admin key</div>';
+            return;
+          }
+          throw new Error("Failed");
+        }
+        const invites = await resp.json();
+        if (!invites.length) {
+          inviteListEl.innerHTML = '<div class="admin-empty">No invite codes</div>';
+          return;
+        }
+        inviteListEl.innerHTML = invites.map(inv => {
+          const uses = inv.max_uses !== null ? inv.use_count + "/" + inv.max_uses : inv.use_count + "/\u221E";
+          return '<div class="admin-item">' +
+            '<div class="admin-item-info">' +
+              '<div class="admin-item-primary">' + esc(inv.code) + '</div>' +
+              '<div class="admin-item-secondary">Uses: ' + uses + '</div>' +
+            '</div>' +
+            '<button class="btn-danger-sm" onclick="deleteInvite(\'' + esc(inv.id) + '\')">Delete</button>' +
+          '</div>';
+        }).join("");
+      } catch {
+        inviteListEl.innerHTML = '<div class="admin-empty">Failed to load</div>';
+      }
+    }
+
+    async function generateInvite() {
+      const maxStr = prompt("Max uses (leave empty for unlimited):");
+      const maxUses = maxStr ? parseInt(maxStr, 10) : null;
+      if (maxStr && isNaN(maxUses)) return;
+      try {
+        const resp = await adminFetch("/admin/invites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ max_uses: maxUses }),
+        });
+        if (resp && resp.ok) {
+          const inv = await resp.json();
+          alert("Invite code: " + inv.code);
+          loadInvites();
+        }
+      } catch {}
+    }
+
+    async function deleteInvite(id) {
+      if (!confirm("Delete this invite code?")) return;
+      try {
+        await adminFetch("/admin/invites/" + id, { method: "DELETE" });
+        loadInvites();
+      } catch {}
+    }
+
+    async function loadUsers() {
+      const userListEl = document.getElementById("userList");
+      try {
+        const resp = await adminFetch("/admin/users");
+        if (!resp || !resp.ok) throw new Error("Failed");
+        const users = await resp.json();
+        if (!users.length) {
+          userListEl.innerHTML = '<div class="admin-empty">No users</div>';
+          return;
+        }
+        userListEl.innerHTML = users.map(u => {
+          const date = new Date(u.created_at).toLocaleDateString();
+          return '<div class="admin-item">' +
+            '<div class="admin-item-info">' +
+              '<div class="admin-item-primary" style="font-family:inherit">' + esc(u.username) + '</div>' +
+              '<div class="admin-item-secondary">Joined ' + date + '</div>' +
+            '</div>' +
+            '<button class="btn-danger-sm" onclick="revokeUser(\'' + esc(u.id) + '\',\'' + esc(u.username) + '\')">Revoke</button>' +
+          '</div>';
+        }).join("");
+      } catch {
+        userListEl.innerHTML = '<div class="admin-empty">Failed to load</div>';
+      }
+    }
+
+    async function revokeUser(id, username) {
+      if (!confirm("Revoke user " + username + "? This deletes all their data.")) return;
+      try {
+        await adminFetch("/admin/users/" + id, { method: "DELETE" });
+        loadUsers();
+      } catch {}
+    }
 
     // --- Check for permission prompt ---
     const params = new URLSearchParams(window.location.search);
@@ -270,8 +781,38 @@
       statusDot.className = "status-dot " + (active ? "active" : "inactive");
     }
 
-    // --- Subscription ---
+    // --- Init: check auth then push ---
     async function init() {
+      // If permission prompt, handle that first
+      if (permId) return;
+
+      const token = getToken();
+      if (!token) {
+        showView("auth");
+        return;
+      }
+
+      // Verify token
+      try {
+        const resp = await authFetch("/auth/me");
+        if (!resp.ok) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("api_key");
+          localStorage.removeItem("user");
+          showView("auth");
+          return;
+        }
+        const data = await resp.json();
+        // Update stored user info
+        localStorage.setItem("user", JSON.stringify(data.user));
+        onAuthenticated(data.user);
+      } catch {
+        showView("auth");
+      }
+    }
+
+    // --- Push subscription ---
+    async function initPush() {
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
         setStatus("Push not supported", false);
         return;
@@ -289,7 +830,7 @@
         btnEl.disabled = false;
         btnEl.onclick = () => subscribe(reg);
       }
-      if (!permId) loadHistory();
+      loadHistory();
     }
 
     async function subscribe(reg) {
@@ -301,7 +842,7 @@
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
-        await fetch("/subscribe", {
+        await authFetch("/subscribe", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(sub.toJSON()),
@@ -320,7 +861,7 @@
       btnEl.disabled = true;
       try {
         await sub.unsubscribe();
-        await fetch("/subscribe", {
+        await authFetch("/subscribe", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ endpoint: sub.endpoint }),
@@ -347,7 +888,7 @@
     // --- History ---
     async function loadHistory() {
       try {
-        const resp = await fetch("/history");
+        const resp = await authFetch("/history");
         const entries = await resp.json();
         renderHistory(entries);
       } catch {
@@ -374,7 +915,6 @@
           badges + '<span class="history-time">' + time + "</span></div>" +
           '<div class="history-summary">' + esc(e.summary) + "</div></li>";
       }).join("");
-      // Wrap all items in a glass group
       historyList.innerHTML = '<div class="history-group glass">' + historyList.innerHTML + "</div>";
     }
 
@@ -385,7 +925,7 @@
     }
 
     clearBtn.onclick = async () => {
-      await fetch("/history", { method: "DELETE" });
+      await authFetch("/history", { method: "DELETE" });
       loadHistory();
     };
 
@@ -393,10 +933,12 @@
     async function showPermissionView(id) {
       currentPermissionId = id;
       mainView.classList.add("hidden");
+      authView.classList.add("hidden");
+      adminView.classList.add("hidden");
       permissionView.classList.add("active");
 
       try {
-        const resp = await fetch("/permission/" + id);
+        const resp = await authFetch("/permission/" + id);
         if (!resp.ok) throw new Error("expired");
         const data = await resp.json();
         if (data.status === "answered") {
@@ -406,7 +948,7 @@
         document.getElementById("permToolLabel").textContent = data.tool_name || "Permission Request";
         document.getElementById("permToolAction").textContent = data.tool_summary || data.tool_name;
         document.getElementById("permToolContext").textContent =
-          (data.machine || "") + (data.project ? " · " + data.project : "");
+          (data.machine || "") + (data.project ? " \u00B7 " + data.project : "");
       } catch {
         showPermissionResult("Permission request expired");
       }
@@ -416,7 +958,7 @@
       const btns = document.getElementById("permButtons");
       btns.style.display = "none";
       try {
-        await fetch("/permission/" + currentPermissionId + "/respond", {
+        await authFetch("/permission/" + currentPermissionId + "/respond", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ decision }),
@@ -437,6 +979,14 @@
         window.location.href = "/";
       }, 1500);
     }
+
+    // Allow Enter key to submit forms
+    document.getElementById("loginPassword").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doLogin();
+    });
+    document.getElementById("regPassword").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") doRegister();
+    });
 
     init();
   </script>
