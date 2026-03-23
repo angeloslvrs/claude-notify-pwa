@@ -1,10 +1,10 @@
 {
   "name": "Claude Notif",
-  "short_name": "ClaudeNotif",
+  "short_name": "CC",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#e94560",
+  "background_color": "#000000",
+  "theme_color": "#0a84ff",
   "icons": [
     {
       "src": "/icon.svg",
