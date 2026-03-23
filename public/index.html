@@ -184,7 +184,6 @@
     #mainView.hidden, #authView.hidden, #adminView.hidden { display: none; }
     .permission-card {
       padding: 1.5rem;
-      text-align: center;
     }
     .permission-card .tool-label {
       font-size: 0.75rem;
@@ -192,31 +191,76 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.5rem;
+      text-align: center;
     }
     .permission-card .tool-action {
       font-size: 1.1rem;
       font-weight: 600;
       letter-spacing: -0.02em;
       margin-bottom: 0.3rem;
+      text-align: center;
     }
     .permission-card .tool-context {
       font-size: 0.8rem;
       color: var(--text-secondary);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
     }
-    .permission-buttons {
+    .permission-prompt-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    .permission-options {
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      overflow: hidden;
+      border-radius: var(--radius-sm);
     }
-    .permission-buttons .row {
+    .permission-option {
       display: flex;
-      gap: 0.6rem;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
     }
+    .permission-option + .permission-option {
+      border-top: 1px solid var(--separator);
+    }
+    .permission-option:active {
+      background: rgba(255,255,255,0.08);
+    }
+    .permission-option .opt-num {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      min-width: 1.2rem;
+    }
+    .permission-option .opt-text {
+      flex: 1;
+      line-height: 1.35;
+    }
+    .permission-option.opt-yes .opt-num { color: var(--green); }
+    .permission-option.opt-always .opt-num { color: var(--blue); }
+    .permission-option.opt-always .opt-text {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .permission-option.opt-no .opt-num { color: var(--red); }
     .permission-status {
       font-size: 0.9rem;
       color: var(--green);
       padding: 1rem;
+      text-align: center;
     }
 
     /* Auth views */
@@ -500,12 +544,20 @@
         <div class="tool-label" id="permToolLabel">Permission Request</div>
         <div class="tool-action" id="permToolAction">Loading...</div>
         <div class="tool-context" id="permToolContext"></div>
-        <div class="permission-buttons" id="permButtons">
-          <button class="btn-allow" onclick="respondPermission('allow')">Allow</button>
-          <div class="row">
-            <button class="btn-always" id="permAlwaysBtn" onclick="respondPermission('always')">Allow always in project</button>
-            <button class="btn-deny" onclick="respondPermission('deny')">Deny</button>
-          </div>
+        <div class="permission-prompt-text">Do you want to proceed?</div>
+        <div class="permission-options" id="permButtons">
+          <button class="permission-option opt-yes" onclick="respondPermission('allow')">
+            <span class="opt-num">1.</span>
+            <span class="opt-text">Yes</span>
+          </button>
+          <button class="permission-option opt-always" id="permAlwaysBtn" onclick="respondPermission('always')">
+            <span class="opt-num">2.</span>
+            <span class="opt-text" id="permAlwaysText">Yes, and don't ask again for similar commands</span>
+          </button>
+          <button class="permission-option opt-no" onclick="respondPermission('deny')">
+            <span class="opt-num">3.</span>
+            <span class="opt-text">No</span>
+          </button>
         </div>
         <div class="permission-status" id="permStatus" style="display:none"></div>
       </div>
@@ -966,12 +1018,12 @@
         document.getElementById("permToolAction").textContent = data.tool_summary || data.tool_name;
         document.getElementById("permToolContext").textContent =
           (data.machine || "") + (data.project ? " \u00B7 " + data.project : "");
-        // Show project in "Always" button
-        const alwaysBtn = document.getElementById("permAlwaysBtn");
+        // Show project context in "always" option
+        const alwaysText = document.getElementById("permAlwaysText");
         if (data.project) {
-          alwaysBtn.textContent = "Always allow in " + data.project;
+          alwaysText.textContent = "Yes, and don\u2019t ask again for similar commands in " + data.project;
         } else {
-          alwaysBtn.textContent = "Always allow";
+          alwaysText.textContent = "Yes, and don\u2019t ask again for similar commands";
         }
       } catch {
         showPermissionResult("Permission request expired");
@@ -988,6 +1040,7 @@
           body: JSON.stringify({ decision }),
         });
         const msg = decision === "always" ? "Always allowed" : decision === "deny" ? "Denied" : "Allowed";
+        if (decision === "deny") document.getElementById("permStatus").style.color = "var(--red)";
         showPermissionResult(msg);
       } catch {
         showPermissionResult("Failed to respond");
