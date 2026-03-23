@@ -60,3 +60,40 @@ export async function removeSubscription(endpoint: string) {
   const filtered = subs.filter((s) => s.endpoint !== endpoint);
   await saveSubscriptions(filtered);
 }
+
+// --- History ---
+
+const HISTORY_PATH = `${DATA_DIR}/history.json`;
+const MAX_HISTORY = 50;
+
+export interface HistoryEntry {
+  id: string;
+  timestamp: string;
+  machine: string;
+  project: string;
+  summary: string;
+  event: string;
+  count: number;
+}
+
+export async function loadHistory(): Promise<HistoryEntry[]> {
+  await ensureDataDir();
+  if (!existsSync(HISTORY_PATH)) return [];
+  try {
+    return JSON.parse(await Bun.file(HISTORY_PATH).text());
+  } catch {
+    return [];
+  }
+}
+
+export async function addHistoryEntry(entry: HistoryEntry) {
+  const history = await loadHistory();
+  history.unshift(entry);
+  if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
+  await Bun.write(HISTORY_PATH, JSON.stringify(history, null, 2));
+}
+
+export async function clearHistory() {
+  await ensureDataDir();
+  await Bun.write(HISTORY_PATH, "[]");
+}
