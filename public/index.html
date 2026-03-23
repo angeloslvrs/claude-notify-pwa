@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Notif</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e94560">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 400px;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .status {
+      margin: 1.5rem 0;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .status.pending { background: #2d2d44; color: #aaa; }
+    .status.subscribed { background: #1b3a2d; color: #6fcf97; }
+    .status.error { background: #3a1b1b; color: #f07070; }
+    button {
+      background: #e94560;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Claude Notif</h1>
+    <p>Push notifications from Claude Code</p>
+    <div id="status" class="status pending">Checking status...</div>
+    <button id="btn" disabled>Enable Notifications</button>
+  </div>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const btnEl = document.getElementById("btn");
+
+    function setStatus(text, cls) {
+      statusEl.textContent = text;
+      statusEl.className = "status " + cls;
+    }
+
+    async function init() {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setStatus("Push notifications not supported in this browser", "error");
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.register("/sw.js");
+      const sub = await reg.pushManager.getSubscription();
+
+      if (sub) {
+        setStatus("Subscribed and receiving notifications", "subscribed");
+        btnEl.textContent = "Unsubscribe";
+        btnEl.disabled = false;
+        btnEl.onclick = () => unsubscribe(reg, sub);
+      } else {
+        setStatus("Not subscribed", "pending");
+        btnEl.textContent = "Enable Notifications";
+        btnEl.disabled = false;
+        btnEl.onclick = () => subscribe(reg);
+      }
+    }
+
+    async function subscribe(reg) {
+      btnEl.disabled = true;
+      try {
+        const resp = await fetch("/vapid-public-key");
+        const { publicKey } = await resp.json();
+
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
+        });
+
+        await fetch("/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(sub.toJSON()),
+        });
+
+        setStatus("Subscribed and receiving notifications", "subscribed");
+        btnEl.textContent = "Unsubscribe";
+        btnEl.disabled = false;
+        btnEl.onclick = () => unsubscribe(reg, sub);
+      } catch (err) {
+        setStatus("Failed to subscribe: " + err.message, "error");
+        btnEl.disabled = false;
+      }
+    }
+
+    async function unsubscribe(reg, sub) {
+      btnEl.disabled = true;
+      try {
+        await sub.unsubscribe();
+        await fetch("/subscribe", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint: sub.endpoint }),
+        });
+        setStatus("Unsubscribed", "pending");
+        btnEl.textContent = "Enable Notifications";
+        btnEl.disabled = false;
+        btnEl.onclick = () => subscribe(reg);
+      } catch (err) {
+        setStatus("Failed to unsubscribe: " + err.message, "error");
+        btnEl.disabled = false;
+      }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const raw = atob(base64);
+      const arr = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+      return arr;
+    }
+
+    init();
+  </script>
+</body>
+</html>
