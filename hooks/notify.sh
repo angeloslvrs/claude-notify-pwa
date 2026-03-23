@@ -47,8 +47,11 @@ JSON=$(jq -nc \
   --arg agent_type "$AGENT_TYPE" \
   '{machine: $machine, project: $project, summary: $summary, event: $event, agent_id: $agent_id, agent_type: $agent_type}')
 
+AUTH_KEY="${CLAUDE_NOTIF_KEY:-}"
+
 curl -s --max-time 5 -X POST "${NOTIF_SERVER}/notify" \
   -H 'Content-Type: application/json' \
+  ${AUTH_KEY:+-H "Authorization: Bearer $AUTH_KEY"} \
   -d "$JSON" \
   > /dev/null 2>&1
 

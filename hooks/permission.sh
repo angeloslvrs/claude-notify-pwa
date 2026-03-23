@@ -5,6 +5,7 @@
 INPUT=$(cat)
 
 NOTIF_SERVER="${CLAUDE_NOTIF_SERVER:-http://localhost:7392}"
+AUTH_KEY="${CLAUDE_NOTIF_KEY:-}"
 MACHINE=$(hostname)
 PROJECT=$(echo "$INPUT" | jq -r '.cwd // empty' | xargs basename)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
@@ -35,6 +36,7 @@ POST_JSON=$(jq -nc \
 
 RESULT=$(curl -s --max-time 5 -X POST "${NOTIF_SERVER}/permission" \
   -H 'Content-Type: application/json' \
+  ${AUTH_KEY:+-H "Authorization: Bearer $AUTH_KEY"} \
   -d "$POST_JSON" 2>/dev/null)
 
 # If POST failed, fall through to terminal prompt
@@ -48,7 +50,7 @@ while [ $ELAPSED -lt 60 ]; do
   sleep 2
   ELAPSED=$((ELAPSED + 2))
 
-  RESP=$(curl -s --max-time 3 "${NOTIF_SERVER}/permission/${REQ_ID}" 2>/dev/null)
+  RESP=$(curl -s --max-time 3 ${AUTH_KEY:+-H "Authorization: Bearer $AUTH_KEY"} "${NOTIF_SERVER}/permission/${REQ_ID}" 2>/dev/null)
   STATUS=$(echo "$RESP" | jq -r '.status // empty')
 
   if [ "$STATUS" = "answered" ]; then
